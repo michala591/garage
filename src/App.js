@@ -1,24 +1,48 @@
-import logo from './logo.svg';
+import { useState, useEffect } from 'react';
 import './App.css';
+import CarDetail from './components/CarDetail';
+import NewCar from './components/NewCar';
+import { getAllCars } from './api';
 
 function App() {
+  const [cars, setCars] = useState([]);
+  const [search, setSearch] = useState("");
+
+  // Fetch cars from the API
+  useEffect(() => {
+    async function fetchCars() {
+      const fetchedCars = await getAllCars();
+      setCars(fetchedCars);
+    }
+    fetchCars();
+  }, []);
+
+  function deleteCar(i) {
+    const newCars = cars.filter((car, carIndex) => carIndex !== i);
+    setCars(newCars);
+  }
+
+  function editCar(index, updatedCar) {
+    console.log("edit");
+    const updatedCars = [...cars]; // Create a copy of the cars array
+    updatedCars[index] = updatedCar; // Update the specific car
+    setCars(updatedCars); // Update the state
+  }
+
+  function updatedCars() {
+    return cars.filter((car) =>
+      car.car.toLowerCase().startsWith(search.toLowerCase())
+    );
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      Search:
+      <input value={search} onChange={(e) => setSearch(e.target.value)} />
+      <br />
+      <NewCar cars={cars} setCars={setCars} />
+      <CarDetail cars={cars} deleteCar={deleteCar} editCar={editCar} updatedCars={updatedCars} />
+    </>
   );
 }
 
